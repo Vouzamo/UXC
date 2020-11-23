@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Vouzamo.UXC.App.Models;
 
 namespace Vouzamo.UXC.App
 {
@@ -28,6 +29,8 @@ namespace Vouzamo.UXC.App
             {
                 configuration.RootPath = "ClientApp/build";
             });
+
+            services.AddSingleton<ItemHierarchy>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

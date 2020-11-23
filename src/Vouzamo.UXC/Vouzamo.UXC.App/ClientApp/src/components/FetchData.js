@@ -1,18 +1,16 @@
-import React, { Component } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 
-export class FetchData extends Component {
-  static displayName = FetchData.name;
+import { tenantContext } from './Layout';
 
-  constructor(props) {
-    super(props);
-    this.state = { forecasts: [], loading: true };
-  }
+export const FetchData = () => {
 
-  componentDidMount() {
-    this.populateWeatherData();
-  }
+    const [data, setData] = useState({ forecasts: [], loading: true })
 
-  static renderForecastsTable(forecasts) {
+    useEffect(() => {
+        populateWeatherData()
+    }, [])
+
+  const renderForecastsTable = (forecasts) => {
     return (
       <table className='table table-striped' aria-labelledby="tabelLabel">
         <thead>
@@ -37,23 +35,21 @@ export class FetchData extends Component {
     );
   }
 
-  render() {
-    let contents = this.state.loading
-      ? <p><em>Loading...</em></p>
-      : FetchData.renderForecastsTable(this.state.forecasts);
+    const populateWeatherData = async() => {
+        const response = await fetch('weatherforecast');
+        const data = await response.json();
+        setData({ forecasts: data, loading: false });
+    }
+
+    const contents = data.loading
+        ? <p><em>Loading...</em></p>
+        : renderForecastsTable(data.forecasts);
 
     return (
-      <div>
-        <h1 id="tabelLabel" >Weather forecast</h1>
-        <p>This component demonstrates fetching data from the server.</p>
-        {contents}
-      </div>
+        <div>
+            <h1 id="tabelLabel" >Weather forecast</h1>
+            <p>This component demonstrates fetching data from the server.</p>
+            {contents}
+        </div>
     );
-  }
-
-  async populateWeatherData() {
-    const response = await fetch('weatherforecast');
-    const data = await response.json();
-    this.setState({ forecasts: data, loading: false });
-  }
 }
