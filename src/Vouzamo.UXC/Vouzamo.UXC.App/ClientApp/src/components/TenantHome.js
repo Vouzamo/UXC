@@ -1,4 +1,4 @@
-﻿import React, { useState, useContext, useEffect } from 'react';
+﻿import React, { Fragment, useState, createContext, useContext, useEffect } from 'react';
 
 import { Route, Link, useParams, useLocation, useHistory } from 'react-router-dom';
 
@@ -29,15 +29,10 @@ export const TenantRoute = ({ match }) => {
         <>
             <Route exact path={`${match.url}/`} component={TenantHome} />
             <Route exact path={`${match.url}/navigator/:itemId?`} component={TenantNavigator} />
+            <Route exact path={`${match.url}/editor/:itemId?`} component={TenantEditor} />
         </>
     )
 
-}
-
-function useQuery(name) {
-    let params = new URLSearchParams(useLocation().search);
-
-    return params.get(name);
 }
 
 export const TenantHome = () => {
@@ -52,37 +47,57 @@ export const TenantHome = () => {
     )
 }
 
-export const TenantNavigator = () => {
+const initialState = {
+    rootItems: [],
+    childItems: {},
+    selectedItem: undefined,
+    expandedItems: []
+}
 
-    const history = useHistory();
+export const NavigatorContext = createContext(initialState);
+
+export const TenantEditor = () => {
+
     const { itemId } = useParams();
 
-    const [selectedItem, selectItem] = useState({ id: itemId, children: [] });
+    return (
+        <h4>Editor for {itemId}</h4>
+    );
+
+}
+
+export const TenantNavigator = () => {
+
+    const { itemId } = useParams();
+
+    const [state, setState] = useState({
+        rootItems: [],
+        childItems: {},
+        selectedItem: itemId,
+        expandedItems: []
+    });
+
     const [tenant] = useContext(TenantContext);
 
-    // This sort of works but we don't have the childItems before onChange is triggered. Might be better to just either make the childItems a context that can be shared or make additional round trips for the other component(s)
-    const onChange = (item) => {
-
-        history.push(`/tenant/${tenant}/navigator/${item.id}`);
-
-        selectItem(item);
-    }
-
     return (
-        <Grid container spacing={3}>
-            <Grid item xs={12} md={3}>
-                <TreeSelector tenant={tenant} initialSelection={itemId} onSelected={onChange} />
+        <NavigatorContext.Provider value={[state, setState]}>
+            <Grid container spacing={3}>
+                <Grid item xs={12} md={3}>
+                    <TreeSelector tenant={ tenant } />
+                </Grid>
+                <Grid item xs={12} md={9}>
+                    <h1>Welcome to the tenant navigator</h1>
+                    <p>You are using tenant: {tenant} and have selected item: {state.selectedItem}</p>
+                    {state.childItems[state.selectedItem] &&
+                        <ul>
+                            {state.childItems[state.selectedItem].filter(child => child.type !== 1 && child.type !== 2).map((child, i) => {
+                                return (<li key={i}><Link to={`/tenant/${tenant}/editor/${child.id}`}>{child.name}</Link></li>)
+                            })}
+                        </ul>
+                    }
+                </Grid>
             </Grid>
-            <Grid item xs={12} md={9}>
-                <h1>Welcome to the tenant navigator</h1>
-                <p>You are using tenant: {tenant} and have selected item: {selectedItem.id}</p>
-                <ul>
-                    {selectedItem.children.filter(child => child.type !== 1 && child.type !== 2).map((child, i) => {
-                        return (<li key={i}>{child.name}</li>)
-                    })}
-                </ul>
-            </Grid>
-        </Grid>
+        </NavigatorContext.Provider>
     )
 
 }
