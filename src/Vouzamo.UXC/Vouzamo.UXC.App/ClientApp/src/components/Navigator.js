@@ -7,7 +7,8 @@ import { TreeView, TreeItem } from '@material-ui/lab';
 import { ExpandMore as ExpandMoreIcon, ChevronRight as ChevronRightIcon } from '@material-ui/icons';
 
 import { NavigatorContext } from './TenantHome';
-import { TenantContext } from './Layout';
+import { TenantContext } from './context/Context';
+import { ItemButton } from './routing/CallToAction';
 
 const filter = child => child.type === 1 || child.type === 2;
 
@@ -129,7 +130,7 @@ const LazyTreeItem = ({ item }) => {
 
     return (
         <div onContextMenu={handleMenuClick}>
-            <TreeItem nodeId={item.id} label={item.name}>
+            <TreeItem nodeId={item.id} label={<ItemButton item={item} />}>
                 {(state.childItems[item.id] ?? []).filter(filter).map((child) => {
                     return (
                         <LazyTreeItem key={`${child.id}_${state.childItems[child.id]?.length}`} item={child}></LazyTreeItem>

@@ -1,12 +1,13 @@
-﻿import React, { Fragment, useState, createContext, useContext, useEffect } from 'react';
+﻿import React, { useState, createContext, useContext, useEffect } from 'react';
 
-import { Route, Link, useParams, useLocation, useHistory } from 'react-router-dom';
+import { Route, Link, useParams } from 'react-router-dom';
 
 import { Grid, Divider, Button, Menu, MenuItem } from '@material-ui/core';
 import { UnfoldMore as UnfoldMoreIcon } from '@material-ui/icons';
 
-import { TenantContext } from './Layout';
-import { ItemNavigator, TreeSelector } from './Navigator';
+import { TenantContext } from './context/Context';
+import { TreeSelector } from './Navigator';
+import { ItemButton } from './routing/CallToAction';
 
 const unknownTenant = undefined;
 
@@ -89,11 +90,11 @@ export const TenantNavigator = () => {
                     <h1>Welcome to the tenant navigator</h1>
                     <p>You are using tenant: {tenant} and have selected item: {state.selectedItem}</p>
                     {state.childItems[state.selectedItem] &&
-                        <ul>
+                        <div>
                             {state.childItems[state.selectedItem].filter(child => child.type !== 1 && child.type !== 2).map((child, i) => {
-                                return (<li key={i}><Link to={`/tenant/${tenant}/editor/${child.id}`}>{child.name}</Link></li>)
+                                return (<div key={i}><ItemButton item={child} isEditorLink /></div>)
                             })}
-                        </ul>
+                        </div>
                     }
                 </Grid>
             </Grid>

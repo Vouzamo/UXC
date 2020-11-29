@@ -1,77 +1,18 @@
-import React, { useState, createContext } from 'react';
+import React, { useState } from 'react';
 
 import { useAuth0 } from '@auth0/auth0-react';
-
 import { Link } from 'react-router-dom';
 
-import { Container, AppBar, Drawer, Divider, List, ListItem, ListItemText, Toolbar, Typography, IconButton, Slide, Button, useScrollTrigger, Menu, MenuItem } from '@material-ui/core';
-import { Menu as MenuIcon, AccountCircle as AccountCircleIcon, Lock as LockIcon, ChevronLeft as ChevronLeftIcon } from '@material-ui/icons';
+import { Container, AppBar, Drawer, Divider, List, ListItem, ListItemText, Toolbar, Typography, IconButton } from '@material-ui/core';
+import { Menu as MenuIcon, ChevronLeft as ChevronLeftIcon } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 
+import { HideOnScroll } from './presentation/HigherOrderComponents';
+import { LoginLogoutButton } from './routing/CallToAction';
+import { TenantContext } from './context/Context';
 import { TenantSelector } from './TenantHome';
 
 const unknownTenant = undefined;
-
-export const TenantContext = createContext([]);
-
-const HideOnScroll = ({ children }) => {
-
-    const trigger = useScrollTrigger();
-
-    return (
-        <Slide appear={false} direction="down" in={!trigger}>
-            {children}
-        </Slide>
-    );
-}
-
-export const LoginLogoutButton = () => {
-
-    const { isAuthenticated, loginWithRedirect, logout } = useAuth0();
-    const [anchorEl, setAnchorEl] = React.useState(null);
-
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
-
-    if (isAuthenticated) {
-        return (
-            <>
-                <IconButton color="inherit" aria-controls="auth-menu" aria-haspopup="true" onClick={handleClick}>
-                    <AccountCircleIcon />
-                </IconButton>
-                <Menu
-                    id="auth-menu"
-                    anchorEl={anchorEl}
-                    anchorOrigin={{
-                        vertical: 'top',
-                        horizontal: 'right',
-                    }}
-                    keepMounted
-                    transformOrigin={{
-                        vertical: 'top',
-                        horizontal: 'right',
-                    }}
-                    open={Boolean(anchorEl)}
-                    onClose={handleClose}
-                >
-                    <MenuItem onClick={handleClose}>Profile</MenuItem>
-                    <MenuItem onClick={handleClose}>My account</MenuItem>
-                    <MenuItem onClick={() => { logout({ returnTo: window.location.origin }); }}>Sign out</MenuItem>
-                </Menu>
-            </>
-        );
-    }
-
-    return (
-        <Button variant="outlined" color="inherit" startIcon={<LockIcon />} onClick={loginWithRedirect}>Sign In</Button>
-    );
-
-}
 
 const useStyles = makeStyles((theme) => ({
     root: {
