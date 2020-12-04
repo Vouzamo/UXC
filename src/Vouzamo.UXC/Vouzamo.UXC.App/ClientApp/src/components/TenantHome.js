@@ -2,7 +2,8 @@
 
 import { Route, Link, useParams } from 'react-router-dom';
 
-import { Grid, Divider, Button, Menu, MenuItem } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import { Grid, Paper, Divider, Breadcrumbs, Tabs, Tab, Box, Typography, Button, Menu, MenuItem } from '@material-ui/core';
 import { UnfoldMore as UnfoldMoreIcon } from '@material-ui/icons';
 
 import { TenantContext } from './context/Context';
@@ -57,12 +58,109 @@ const initialState = {
 
 export const NavigatorContext = createContext(initialState);
 
+export const ItemBreadcrumb = ({ itemId }) => {
+
+    const [nodes, setNodes] = useState([]);
+
+    useEffect(() => {
+
+        fetch(`/items/${itemId}/breadcrumb`)
+            .then((response) => {
+                response.json()
+                    .then((data) => {
+                        setNodes(data);
+                })
+            })
+
+    }, [itemId])
+
+    return (
+        <Breadcrumbs aria-label="breadcrumb">
+            {nodes && nodes.map((node, i) => {
+                return <ItemButton key={ i } item={ node } isEditorLink />
+            })}
+        </Breadcrumbs>
+    )
+
+}
+
+const useStyles = makeStyles((theme) => ({
+    paper: {
+        padding: theme.spacing(2)
+    }
+}));
+
+const TabPanel = ({ children, value, index, ...other }) => {
+
+    return (
+        <div
+            role="tabpanel"
+            hidden={value !== index}
+            id={`scrollable-auto-tabpanel-${index}`}
+            aria-labelledby={`scrollable-auto-tab-${index}`}
+            {...other}
+        >
+            {value === index && (
+                <Box p={3}>
+                    <Typography>{children}</Typography>
+                </Box>
+            )}
+        </div>
+    );
+}
+
 export const TenantEditor = () => {
 
     const { itemId } = useParams();
+    const classes = useStyles();
+
+    const [tab, setTab] = React.useState(0);
+
+    const handleChange = (event, newValue) => {
+        setTab(newValue);
+    };
 
     return (
-        <h4>Editor for {itemId}</h4>
+        <Grid container spacing={3}>
+            <Grid item xs={12}>
+                <Paper className={classes.paper}>
+                    <Grid container spacing={3}>
+                        <Grid item xs={12}>
+                            <ItemBreadcrumb itemId={ itemId } />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <p>{ itemId }</p>
+                        </Grid>
+                    </Grid>
+                </Paper>
+            </Grid>
+            <Grid item xs={12}>
+                <Paper className={classes.paper}>
+                    <Tabs
+                        value={tab}
+                        onChange={handleChange}
+                        indicatorColor="primary"
+                        textColor="primary"
+                        variant="scrollable"
+                        scrollButtons="auto"
+                        aria-label="scrollable auto tabs example"
+                    >
+                        <Tab label="General" id="tab-1" aria-controls="tab-1" />
+                        <Tab label="Child Items" id="tab-2" aria-controls="tab-2" />
+                        <Tab label="Information" id="tab-3" aria-controls="tab-3" />
+                    </Tabs>
+                    <TabPanel value={tab} index={0}>
+                        General
+                    </TabPanel>
+                    <TabPanel value={tab} index={1}>
+                        Child Items
+                    </TabPanel>
+                    <TabPanel value={tab} index={2}>
+                        Information
+                    </TabPanel>
+                </Paper>
+            </Grid>
+        </Grid>
     );
 
 }
